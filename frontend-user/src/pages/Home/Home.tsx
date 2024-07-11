@@ -7,16 +7,21 @@ import Layout from "@/components/Layout/Layout";
 
 export default function Home() {
   const { data = [] } = useBlogsQuery();
+  console.log(data);
   let entries: IBlogEntry[] =
-    data.length > 0
-      ? data.sort(
+    Array.isArray(data) && data.length > 0
+      ? [...data].sort(
           (a, b) =>
             new Date(b.creationDate).valueOf() -
             new Date(a.creationDate).valueOf()
         )
       : data;
 
-  entries = entries.filter((blog) => blog.published.toString() === "true");
+  entries = Array.isArray(entries)
+    ? entries.filter(
+        (blog) => blog && blog.published && blog.published.toString() === "true"
+      )
+    : [];
   const [currentPage, setCurrentPage] = useState(1);
   const entriesPerPage = 3;
   const totalPages = Math.ceil(entries.length / entriesPerPage);
@@ -33,7 +38,7 @@ export default function Home() {
 
   return (
     <Layout>
-      <div className="mx-auto container   lg:pr-0 ">
+      <div className="ml-auto container   lg:pr-0 ">
         <h1 className=" font-bold py-10 pr-10 border-b-4 ">
           READ THROUGH OUR LATEST POSTS
         </h1>

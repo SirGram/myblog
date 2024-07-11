@@ -6,7 +6,7 @@ import { IBlogEntry } from "@/types/types";
 
 export default function BlogCard({ entry }: { entry: IBlogEntry }) {
   return (
-    <article className="flex flex-row py-6 px-2 border-b-2 w-full hover:bg-primary hover:text-background ease-linear transition-all duration-300">
+    <article className="flex flex-row py-6 px-2 border-b-2 w-full hover:bg-primary hover:text-background ease-linear transition-all duration-150">
       {/* Left side:*/}
       <div className="w-36 h-20 object-cover">
         <img

@@ -6,6 +6,7 @@
   "private": true,
   "license": "UNLICENSED",
   "scripts": {
+   "copy-frontend": "xcopy ..\\frontend-user\\dist .\\dist\\public /E /I /Y",
     "build": "nest build",
     "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",
     "start": "nest start",
@@ -27,6 +28,7 @@
     "@nestjs/mapped-types": "^2.0.5",
     "@nestjs/mongoose": "^10.0.6",
     "@nestjs/platform-express": "^10.0.0",
+    "@nestjs/serve-static": "^4.0.2",
     "@nestjs/swagger": "^7.3.1",
     "class-transformer": "^0.5.1",
     "class-validator": "^0.14.1",
@@ -37,6 +39,7 @@
     "swagger-ui-express": "^5.0.0"
   },
   "devDependencies": {
+    "@flydotio/dockerfile": "^0.5.7",
     "@nestjs/cli": "^10.0.0",
     "@nestjs/schematics": "^10.0.0",
     "@nestjs/testing": "^10.0.0",

@@ -17,9 +17,10 @@ import { useToast } from "@/components/ui/use-toast";
 import { useState } from "react";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
-import { addComment, deleteComment } from "@/api/api";
+import { addComment, deleteComment, toastApiCall } from "@/api/api";
 import { Input } from "@/components/ui/input";
 import { useAuth } from "@/context/AuthContext";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 
 function Comments({ entry }: { entry: IBlogEntry }) {
   const [newComment, setNewComment] = useState("");
@@ -27,37 +28,55 @@ function Comments({ entry }: { entry: IBlogEntry }) {
   const { toast } = useToast();
   const { isAuthenticated } = useAuth();
 
+  const queryClient = useQueryClient();
+  const addCommentMutation = useMutation({
+    mutationFn: ({
+      blogId,
+      content,
+      username,
+    }: {
+      blogId: string;
+      content: string;
+      username?: string;
+    }) => addComment(blogId, content, username),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["blogs", entry._id] });
+    },
+  });
+
+  const deleteCommentMutation = useMutation({
+    mutationFn: (id: string) => deleteComment(id),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["blogs", entry._id] });
+    },
+  });
+
   const handleCommentSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!newComment.trim()) return;
 
-    try {
-      await addComment(entry._id, newComment, username);
-      toast({
-        title: "Comment added successfully",
-      });
-      setNewComment("");
-      setUsername("");
-    } catch (error) {
-      toast({
-        title: "Failed to add comment",
-        variant: "destructive",
-      });
-    }
+    await toastApiCall(
+      () =>
+        addCommentMutation.mutateAsync({
+          blogId: entry._id,
+          content: newComment,
+          username,
+        }),
+      toast,
+      "Failed to create comment",
+      "Comment created successfully"
+    );
+    setNewComment("");
+    setUsername("");
   };
 
   const handleDeleteComment = async (id: string) => {
-    try {
-      await deleteComment(id);
-      toast({
-        title: "Comment deleted successfully",
-      });
-    } catch (error) {
-      toast({
-        title: "Failed to delete comment",
-        variant: "destructive",
-      });
-    }
+    await toastApiCall(
+      () => deleteCommentMutation.mutateAsync(id),
+      toast,
+      "Failed to create comment",
+      "Comment created successfully"
+    );
   };
   console.log(entry);
   return (

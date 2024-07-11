@@ -42,7 +42,7 @@ export default function Login() {
     <Layout showAside={false}>
       <form
         onSubmit={(e) => handleSubmit(e)}
-        className="flex flex-col w-full md:w-1/2 mx-auto justify-center mt-6"
+        className="flex flex-col w-full md:w-1/3 mx-auto justify-center mb-6"
       >
         <div>
           <Label>

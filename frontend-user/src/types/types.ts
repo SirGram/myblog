@@ -13,12 +13,14 @@ export interface IUser {
     avatarImage?: string;
   };
 }
+
 export interface IComment {
   _id: string;
   content?: string;
   user?: string;
   creationDate?: string;
 }
+
 export interface IBlogEntry {
   _id: string;
   title: string;

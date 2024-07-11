@@ -1,7 +1,8 @@
-import { IBlogEntry, IUser } from '@/types/types';
+import { IBlogEntry, IComment, IUser } from '@/types/types';
 import axios from 'axios'
 
-export const baseUrl = 'http://localhost:3000'
+export const baseUrl = import.meta.env.VITE_API_URL;
+console.log(baseUrl);
 
 interface ToastOptions {
   title: string;
@@ -24,10 +25,10 @@ export async function toastApiCall(apiCall: () => Promise<any>, toast: (options:
       description: errorMessage,
     });
     throw err;
-  }
+  } 
 }
 
-export async function addComment(blogId: string, content: string, username?: string): Promise<void> {
+export async function addComment(blogId: string, content: string, username?: string): Promise<IComment> {
   console.log(blogId, content, username);
  
   const response = await axios.post(`${baseUrl}/blogs/${blogId}/comments`, {

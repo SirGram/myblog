@@ -2,9 +2,10 @@ import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { ValidationPipe } from '@nestjs/common';
+import { NestExpressApplication } from '@nestjs/platform-express';
 
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule, { cors: true });
+  const app = await NestFactory.create<NestExpressApplication>(AppModule, { cors: true });
 
   app.useGlobalPipes(new ValidationPipe());
 
@@ -15,8 +16,14 @@ async function bootstrap() {
     .addTag('blogs')
     .build();
   const document = SwaggerModule.createDocument(app, config);
-  SwaggerModule.setup('api', app, document);
+  SwaggerModule.setup('docs', app, document);
 
-  await app.listen(process.env.PORT);
+  app.setGlobalPrefix('api'); // Add this line to prefix all routes with '/api'
+
+  const port = process.env.PORT || 8080;
+
+  await app.listen(port, '0.0.0.0');
+  console.log(`Application started on port ${port}`);
 }
-bootstrap();
+
+bootstrap().catch(err => console.error('Application failed to start:', err));

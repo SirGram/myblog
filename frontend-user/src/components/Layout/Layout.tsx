@@ -15,8 +15,10 @@ export default function Layout({
   showAside?: boolean;
   children: ReactNode;
 }) {
-  const { data } = useBlogsQuery();
-  const posts: IBlogEntry[] = data.sort((a, b) => b.likes - a.likes);
+  const { data = [] } = useBlogsQuery();
+  const posts: IBlogEntry[] = Array.isArray(data)
+    ? [...data].sort((a, b) => b.likes - a.likes)
+    : [];
   const topPosts = posts.slice(0, 3);
 
   const [prevScrollPos, setPrevScrollPos] = useState(0);
