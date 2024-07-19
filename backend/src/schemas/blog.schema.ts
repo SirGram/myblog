@@ -31,6 +31,9 @@ export class Blog {
   @Prop({ type: Number, default: 0 })
   likes: number;
 
+  @Prop({ type: [String] , default: []})
+  upvotedBy: string[];
+
   @Prop({ type: Number, default: 0 })
   visits: number;
 

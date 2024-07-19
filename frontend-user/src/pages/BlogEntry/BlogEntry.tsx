@@ -8,19 +8,26 @@ import {
   BreadcrumbList,
   BreadcrumbSeparator,
 } from "../../components/ui/breadcrumb";
-import { BiLike } from "react-icons/bi";
+import { BiLike, BiSolidLike } from "react-icons/bi";
 import HoverAvatarCard from "@/components/HoverAvatarCard";
 import { IBlogEntry } from "@/types/types";
 import { useBlogQuery } from "@/api/queries";
 import AdjustedMarkdown from "@/components/AdjustedMarkdown";
 import { useToast } from "@/components/ui/use-toast";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
-import { addComment, deleteComment, toastApiCall } from "@/api/api";
+import {
+  addComment,
+  deleteComment,
+  downvoteBlog,
+  toastApiCall,
+  upvoteBlog,
+} from "@/api/api";
 import { Input } from "@/components/ui/input";
 import { useAuth } from "@/context/AuthContext";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { v4 as uuidv4 } from "uuid";
 
 function Comments({ entry }: { entry: IBlogEntry }) {
   const [newComment, setNewComment] = useState("");
@@ -130,7 +137,7 @@ function Comments({ entry }: { entry: IBlogEntry }) {
 
 function BreadCrumbContainer({ id }: { id: string }) {
   return (
-    <Breadcrumb className="text-muted mb-4 ">
+    <Breadcrumb className="text-muted mb-4 mx-2 ">
       <BreadcrumbList>
         <BreadcrumbItem>
           <BreadcrumbLink asChild>
@@ -158,10 +165,61 @@ function BreadCrumbContainer({ id }: { id: string }) {
 
 export default function BlogEntry() {
   const { id } = useParams();
+  const { toast } = useToast();
+  const queryClient = useQueryClient();
+  const { data: entry } = useBlogQuery(id);
 
-  const { data } = useBlogQuery(id);
-  const entry = data;
+  const [clientId] = useState(() => {
+    let storedClientId = localStorage.getItem("clientId");
+    if (!storedClientId) {
+      storedClientId = uuidv4();
+      localStorage.setItem("clientId", storedClientId);
+    }
+    return storedClientId;
+  });
 
+  const [hasUpvoted, setHasUpvoted] = useState(false);
+
+  useEffect(() => {
+    if (id) {
+      const upvotedKey = `upvoted_${id}`;
+      setHasUpvoted(localStorage.getItem(upvotedKey) === "true");
+    }
+  }, [id]);
+
+  const toggleUpvoteMutation = useMutation({
+    mutationFn: ({
+      blogId,
+      clientId,
+      isUpvoting,
+    }: {
+      blogId: string;
+      clientId: string;
+      isUpvoting: boolean;
+    }) =>
+      isUpvoting
+        ? upvoteBlog(blogId, clientId)
+        : downvoteBlog(blogId, clientId),
+    onSuccess: (_, variables) => {
+      queryClient.invalidateQueries({ queryKey: ["blogs", id] });
+      setHasUpvoted(variables.isUpvoting);
+      if (id) {
+        localStorage.setItem(`upvoted_${id}`, variables.isUpvoting.toString());
+      }
+    },
+  });
+
+  const handleToggleVote = async () => {
+    if (!id) return;
+    const isUpvoting = !hasUpvoted;
+    await toastApiCall(
+      () =>
+        toggleUpvoteMutation.mutateAsync({ blogId: id, clientId, isUpvoting }),
+      toast,
+      isUpvoting ? "Failed to upvote blog" : "Failed to remove upvote",
+      isUpvoting ? "Blog upvoted successfully" : "Upvote removed successfully"
+    );
+  };
   if (!entry) return <h1>No entry was found</h1>;
 
   return (
@@ -201,8 +259,11 @@ export default function BlogEntry() {
           <div className="flex flex-col w-full justify-between py-4">
             <div className="flex items-center text-2xl mb-2">
               <span>{entry.likes}</span>
-              <button className="text-2xl m-2 font-bold">
-                <BiLike className=" hover:fill-slate-500 " />
+              <button
+                className="text-2xl m-2 font-bold"
+                onClick={handleToggleVote}
+              >
+                {hasUpvoted ? <BiSolidLike /> : <BiLike />}
               </button>
             </div>
           </div>

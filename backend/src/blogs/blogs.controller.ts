@@ -37,6 +37,16 @@ export class BlogsController {
     return this.blogsService.findOne(id);
   }
 
+  @Post(':id/upvote')
+  upvote(@Param('id') id: string, @Body( 'clientId') clientId: string) {
+    return this.blogsService.upvote(id, clientId);
+  }
+
+  @Post(':id/downvote')
+  downvote(@Param('id') id: string, @Body( 'clientId') clientId: string) {
+    return this.blogsService.downvote(id, clientId);
+  }
+
   @UseGuards(AuthGuard)
   @Patch(':id')
   update(@Param('id') id: string, @Body() updateBlogDto: UpdateBlogDto) {

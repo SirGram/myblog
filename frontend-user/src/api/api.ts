@@ -120,3 +120,13 @@ export async function deleteBlog(blogId:string): Promise<IBlogEntry> {
   const response = await axios.delete(`${baseUrl}/blogs/${blogId}`,  { headers: { "Authorization": `Bearer ${token}` } });
   return response.data;
 }
+
+export async function upvoteBlog(blogId:string, clientId:string): Promise<IBlogEntry> {
+  const response = await axios.post(`${baseUrl}/blogs/${blogId}/upvote`, { clientId });
+  return response.data;
+}
+
+export async function downvoteBlog(blogId:string, clientId:string): Promise<IBlogEntry> {
+  const response = await axios.post(`${baseUrl}/blogs/${blogId}/downvote`, { clientId });
+  return response.data;
+}

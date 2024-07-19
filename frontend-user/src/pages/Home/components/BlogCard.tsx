@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import { BiComment, BiLike } from "react-icons/bi";
 import HoverAvatarCard from "@/components/HoverAvatarCard";
 import { IBlogEntry } from "@/types/types";
+
 export default function BlogCard({ entry }: { entry: IBlogEntry }) {
   return (
     <article className="flex flex-col md:flex-row items-center py-6 px-2 border-b-2 w-full hover:bg-primary hover:text-background ease-linear transition-all duration-150">

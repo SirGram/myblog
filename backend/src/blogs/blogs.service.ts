@@ -12,7 +12,7 @@ import { CreateBlogCommentDto } from './dto/create-blogComment.dto';
 export class BlogsService {
   constructor(
     @InjectModel(Blog.name) private blogModel: Model<BlogDocument>,
-    @InjectModel(User.name) private userModel: Model<UserDocument>,    
+    @InjectModel(User.name) private userModel: Model<UserDocument>,
     @InjectModel(BlogComment.name) private blogCommentModel: Model<BlogComment>,
   ) {}
 
@@ -30,7 +30,6 @@ export class BlogsService {
   }
 
   async findAll(): Promise<Blog[]> {
-    
     await this.cleanUpCommentReferences();
     return this.blogModel
       .find()
@@ -52,11 +51,34 @@ export class BlogsService {
     return this.blogModel.findByIdAndUpdate(id, updateBlogDto).exec();
   }
 
+  async upvote(id: string, clientId: string): Promise<Blog> {
+    const blog = await this.blogModel.findById(id);
+    if (!blog) throw new HttpException('Blog Not Found', 404);
+    if (blog.upvotedBy.includes(clientId)) {
+      throw new HttpException('Already upvoted', 400);
+    }
+
+    blog.likes += 1;
+    blog.upvotedBy.push(clientId);
+    return blog.save();
+  }
+
+  async downvote(id: string, clientId: string): Promise<Blog> {
+    const blog = await this.blogModel.findById(id);
+    if (!blog) throw new HttpException('Blog Not Found', 404);
+    if (!blog.upvotedBy.includes(clientId)) {
+      throw new HttpException('Not upvoted', 400);
+    }
+
+    blog.likes -= 1;
+    blog.upvotedBy = blog.upvotedBy.filter((upvotedBy) => upvotedBy !== clientId);
+    return blog.save();
+  }
+
   async remove(id: string): Promise<Blog> {
     return this.blogModel.findByIdAndDelete(id);
   }
 
-  
   private async cleanUpCommentReferences(): Promise<void> {
     const blogs = await this.blogModel.find();
 
@@ -110,7 +132,6 @@ export class BlogCommentsService {
   async findAll(blogId: string) {
     return this.blogCommentModel.find({ blog: blogId });
   }
-
 
   async remove(id: string) {
     const comment = await this.blogCommentModel.findById(id);
