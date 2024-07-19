@@ -166,7 +166,7 @@ export default function BlogEntry() {
 
   return (
     <Layout showAside={false}>
-      <section className="max-w-screen-lg py-6 ">
+      <section className="max-w-screen-lg w-full py-6 ">
         <BreadCrumbContainer id={entry._id} />
         <header className="mb-10 py-6 border-b-4   p-4 ">
           <h1 className="mb-10 font-bold text-ring">{entry.title}</h1>
@@ -179,16 +179,17 @@ export default function BlogEntry() {
           </div>
           <div className="flex gap-1 items-center w-full justify-center">
             <HoverAvatarCard entry={entry} />
-            <p className="text-muted-foreground flex gap-2">
+            <p className="text-muted-foreground flex items-center gap-2">
               <span title="created on">
-                Created on:{"  "}
-                {formatDate(new Date(entry.creationDate))}
+                Created on: {formatDate(new Date(entry.creationDate))}
               </span>
               {entry.lastEditionDate && (
-                <span title="last edition">
-                  {"  | "}Last Edition:{"  "}
-                  {formatDate(new Date(entry.creationDate))}
-                </span>
+                <>
+                  <span className="h-6 w-px bg-muted-foreground"></span>
+                  <span title="last edition">
+                    Last Edition: {formatDate(new Date(entry.creationDate))}
+                  </span>
+                </>
               )}
             </p>
           </div>

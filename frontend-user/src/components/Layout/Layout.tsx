@@ -48,7 +48,7 @@ export default function Layout({
             {children}
           </section>
           {showAside && (
-            <aside className="container lg:col-span-1 lg:border-l-4 p-4  flex flex-col gap-12  lg:w-96 bg-secondary text-foreground">
+            <aside className="container lg:col-span-1 lg:border-l-4 p-4  flex flex-col gap-12  lg:w-96 bg-secondary text-foreground pb-40">
               <SearchContent />
               <TopPosts topPosts={topPosts} />
               <NewsLetter />

@@ -12,7 +12,8 @@ import { CreateBlogCommentDto } from './dto/create-blogComment.dto';
 export class BlogsService {
   constructor(
     @InjectModel(Blog.name) private blogModel: Model<BlogDocument>,
-    @InjectModel(User.name) private userModel: Model<UserDocument>,
+    @InjectModel(User.name) private userModel: Model<UserDocument>,    
+    @InjectModel(BlogComment.name) private blogCommentModel: Model<BlogComment>,
   ) {}
 
   async create({ userId, ...createBlogDto }: CreateBlogDto): Promise<Blog> {
@@ -29,10 +30,11 @@ export class BlogsService {
   }
 
   async findAll(): Promise<Blog[]> {
+    
+    await this.cleanUpCommentReferences();
     return this.blogModel
       .find()
-      .populate({ path: 'user', select: '-password -email -blogs -settings' })
-      
+      .populate({ path: 'user', select: '-password -email -blogs -settings' });
   }
 
   async findOne(id: string): Promise<Blog> {
@@ -41,7 +43,7 @@ export class BlogsService {
       .populate({ path: 'user', select: '-password -email' })
       .populate({
         path: 'comments',
-        options: { sort: { creationDate: -1 } }, // Sort comments by creation date, newest first       
+        options: { sort: { creationDate: -1 } }, // Sort comments by creation date, newest first
       })
       .exec();
   }
@@ -52,6 +54,31 @@ export class BlogsService {
 
   async remove(id: string): Promise<Blog> {
     return this.blogModel.findByIdAndDelete(id);
+  }
+
+  
+  private async cleanUpCommentReferences(): Promise<void> {
+    const blogs = await this.blogModel.find();
+
+    for (const blog of blogs) {
+      const existingComments = await this.blogCommentModel.find({
+        _id: { $in: blog.comments },
+      });
+
+      const existingCommentIds = existingComments.map((comment) =>
+        comment._id.toString(),
+      );
+
+      const updatedComments = blog.comments.filter((commentId) =>
+        existingCommentIds.includes(commentId.toString()),
+      );
+
+      if (updatedComments.length !== blog.comments.length) {
+        await this.blogModel.findByIdAndUpdate(blog._id, {
+          $set: { comments: updatedComments },
+        });
+      }
+    }
   }
 }
 
@@ -84,7 +111,20 @@ export class BlogCommentsService {
     return this.blogCommentModel.find({ blog: blogId });
   }
 
+
   async remove(id: string) {
-    return this.blogCommentModel.findByIdAndDelete(id);
+    const comment = await this.blogCommentModel.findById(id);
+    if (!comment) {
+      throw new HttpException('Comment not found', 404);
+    }
+
+    // Remove the comment from the BlogComment collection and Blog document
+    await this.blogCommentModel.findByIdAndDelete(id);
+
+    await this.blogModel.findByIdAndUpdate(comment.blog, {
+      $pull: { comments: id },
+    });
+
+    return comment;
   }
 }

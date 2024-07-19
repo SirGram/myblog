@@ -18,7 +18,7 @@ async function bootstrap() {
   const document = SwaggerModule.createDocument(app, config);
   SwaggerModule.setup('docs', app, document);
 
-  app.setGlobalPrefix('api'); // Add this line to prefix all routes with '/api'
+  app.setGlobalPrefix('api');
 
   const port = process.env.PORT || 8080;
 

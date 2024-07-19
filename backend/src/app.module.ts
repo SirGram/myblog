@@ -21,10 +21,14 @@ import { AppController } from './app.controller';
     BlogsModule,
     UsersModule,
     AuthModule,
-    ServeStaticModule.forRoot({
-      rootPath: join(__dirname, '..', 'dist/public'),
-      exclude: ['/api*'],
-    }),
+    ...(process.env.NODE_ENV === 'production'
+      ? [
+          ServeStaticModule.forRoot({
+            rootPath: join(__dirname, '..', 'dist/public'),
+            exclude: ['/api*'],
+          }),
+        ]
+      : []),
   ],
   controllers: [AppController],
   providers: [],
