@@ -35,8 +35,8 @@ export default function UserSettings() {
     fullname: auth?.fullname || "",
     email: auth?.email || "",
     settings: {
-      about: auth?.settings.about || "",
-      avatarImage: auth?.settings.avatarImage || "",
+      about: auth?.settings?.about ?? "",
+      avatarImage: auth?.settings?.avatarImage ?? "",
     },
   });
 

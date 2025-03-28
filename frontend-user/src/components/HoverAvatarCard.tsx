@@ -9,6 +9,7 @@ import {
 import { IBlogEntry } from "@/types/types";
 
 export default function HoverAvatarCard({ entry }: { entry: IBlogEntry }) {
+  console.log(entry)
   const fallback = entry.user.fullname.slice(0, 2).toUpperCase();
   return (
     <HoverCard>

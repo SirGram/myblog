@@ -7,7 +7,7 @@ export interface IUser {
   password?:string;
   email?:string;
   registrationDate: string;
-  settings: {
+  settings?: {
     _id?: string;
     about?: string;
     avatarImage?: string;
