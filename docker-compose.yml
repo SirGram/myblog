@@ -1,0 +1,18 @@
+services:
+  frontend:
+    build:
+      context: ./frontend-user
+      dockerfile: Dockerfile
+    ports:
+      - "8004:80"
+    env_file:
+      - ./frontend-user/.env  # Use frontend-specific .env
+  
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    ports:
+      - "8080:8080"
+    env_file:
+      - ./backend/.env  # Use backend-specific .env

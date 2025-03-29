@@ -8,6 +8,8 @@ import Layout from "@/components/Layout/Layout";
 export default function Home() {
   const { data = [] } = useBlogsQuery();
   console.log(data);
+  
+  console.log("vite_api_url", import.meta.env.VITE_API_URL);
   let entries: IBlogEntry[] =
     Array.isArray(data) && data.length > 0
       ? [...data].sort(
